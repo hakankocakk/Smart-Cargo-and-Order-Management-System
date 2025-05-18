@@ -3,7 +3,7 @@ from src.product import Product
 
 
 class ProductManager:
-    def __init__(self, db_name="store.db"):
+    def __init__(self, db_name="databases/store.db"):
         self.conn = sqlite3.connect(db_name)
         self.create_table()
 
