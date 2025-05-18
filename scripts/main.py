@@ -15,7 +15,6 @@ USERS = {
 
 
 def login():
-    
     print("=======Login=======")
     username = input("Please enter a username: ")
     password = input("Please enter a password: ")
@@ -31,7 +30,6 @@ def login():
 
 
 def display_products(inventory_manager):
-
     print("\n======= Available Products =======")
     products = inventory_manager.list_products()
     for product in products:
@@ -39,7 +37,7 @@ def display_products(inventory_manager):
 
 
 def manager_menu(inventory_manager):
-
+    
     while True:
         print("\n--- Manager Menu ---")
         print("1. List Product")
