@@ -1,8 +1,13 @@
+from __future__ import annotations 
 from typing import List
-from customer import Customer
-from product import Product
-from orderstatus import OrderStatus
-from shippingMethod import ShippingMethod
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#from src.order import Order
+from src.customer import Customer
+from src.product import Product
+from src.orderstatus import OrderStatus
+from src.shippingMethod import ShippingMethod
 
 class Order:
     def __init__(self, order_id: int, customer: Customer,
