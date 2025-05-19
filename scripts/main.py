@@ -64,7 +64,23 @@ def manager_menu(inventory_manager):
             except Exception as e:
                 print(f"Error: {e}")
 
+        elif choice == "3":
+            display_products(inventory_manager)
+            product_name = input("Enter product name: ")
+            product_quantity = int(input("Enter product quantity: "))
+            status = inventory_manager.reduce_stock(product_name, product_quantity)
+            print(status,"\n")
+            display_products(inventory_manager)
+
+        elif choice == "4":
+            display_products(inventory_manager)
+            product_name = input("Enter product id: ")
+            new_stock = int(input("Enter new stock: "))
+            inventory_manager.update_stock(product_name, new_stock)
+            display_products(inventory_manager)
+
         elif choice == "5":
+            print("Good By Admin!")
             break
              
 
