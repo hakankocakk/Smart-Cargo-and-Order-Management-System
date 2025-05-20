@@ -58,6 +58,20 @@ class OrderFactory:
     @logOrderCreation
     def create_order(self, order_id: int, customer: Customer, products: List[Product],
                      status: OrderStatus, shipping_method: ShippingMethod) -> Order:
+        # Stok kontrolü: stokta olmayan ürün sipariş edilemez
+        for product in products:
+            if product.stock <= 0:
+                raise Exception(f"{product.name} stokta yok, sipariş edilemez.")
         order = Order(order_id, customer, products, status, shipping_method)
         self.save_order_to_db(order)
-        return order    
+        # Sipariş müşteri geçmişine eklenir
+        customer.add_order(order)
+        # Sipariş edilen ürünlerin stoğu güncellenir
+        for product in products:
+            product.stock -= 1
+        return order
+
+    def get_orders_by_customer(self, customer_name):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT id, products, status, shipping_method, total FROM orders WHERE customer_name = ?', (customer_name,))
+        return cursor.fetchall()

@@ -8,12 +8,14 @@ from src.customer import Customer
 from src.product import Product
 from src.orderstatus import OrderStatus
 from src.shippingMethod import ShippingMethod
+from src.observer import Subject
 
-class Order:
+class Order(Subject):
     def __init__(self, order_id: int, customer: Customer,
                  products: List[Product],
                  status: OrderStatus,
                  shipping_method: ShippingMethod):
+        super().__init__()
         self.__id = order_id
         self.__customer = customer
         self.__products = products
@@ -29,6 +31,7 @@ class Order:
     def update_status(self, new_status: OrderStatus):
         """Update the order status."""
         self.__status = new_status
+        self.notify(f"Sipariş {self.__id} durumu güncellendi: {new_status.value}")
 
     @property
     def id(self):
@@ -41,4 +44,13 @@ class Order:
     @property
     def customer(self):
         return self.__customer
+    
+    @property
+    def products(self):
+        """Get a copy of the products list to prevent direct modification."""
+        return list(self.__products)
 
+    @property
+    def shipping_method(self):
+        """Get the shipping method."""
+        return self.__shipping_method

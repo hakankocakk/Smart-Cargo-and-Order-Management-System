@@ -1,6 +1,8 @@
+from src.observer import Observer
 
-class Customer:
+class Customer(Observer):
     def __init__(self, customer_id, name, surname,phone_number, email, order_history, address):
+        super().__init__()
         self.__customer_id = customer_id
         self.name = name
         self.surname = surname
@@ -44,3 +46,6 @@ class Customer:
         print(f"Email: {self.__email}")
         print(f"Adres: {self.__address}")
         print(f"Sipariş Sayısı: {len(self.__order_history)}")
+        
+    def update(self, message):
+        print(f"Bildirim ({self.name}): {message}")
