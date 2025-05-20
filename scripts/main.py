@@ -7,7 +7,7 @@ from src.inventorymanager import ProductManager
 from src.product import Product
 
 
-<<<<<<< HEAD
+
 def sign_up():
     conn = sqlite3.connect("databases/users.db")
 
@@ -33,15 +33,6 @@ def sign_up():
 
         except Exception as e:
             print(f"Error: {e}")
-=======
-USERS = {
-    "Nilgun": {"password": "admin123", "role": "manager"},
-    "Hakan": {"password": "hakosahilde33", "role": "customer", "email": "hakan@example.com"},
-    "Nur": {"password": "nuruyuyo00", "role": "customer", "email": "nur@example.com"},
-    "Leyla": {"password": "leylasahilde33", "role": "customer", "email": "leyla@example.com"},
-    "Salih": {"password": "cok_gizli_123", "role": "customer", "email": "sbb@example.com"},
-}
->>>>>>> 6693236d31fbe10f61a3e9967eaba338be50ace4
 
 
 def sign_in():
