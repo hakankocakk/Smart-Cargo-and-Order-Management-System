@@ -11,6 +11,7 @@ USERS = {
     "Hakan": {"password": "hakosahilde33", "role": "customer", "email": "hakan@example.com"},
     "Nur": {"password": "nuruyuyo00", "role": "customer", "email": "nur@example.com"},
     "Leyla": {"password": "leylasahilde33", "role": "customer", "email": "leyla@example.com"},
+    "Salih": {"password": "cok_gizli_123", "role": "customer", "email": "sbb@example.com"},
 }
 
 
