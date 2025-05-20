@@ -4,7 +4,7 @@ class ShippingMethod(ABC):
     def calculateCoat(self):
         pass
 
-class FastShippimg(ShippingMethod):
+class FastShipping(ShippingMethod):
     def calculateCoat(self):
         return 20.0
 class CheapShipping(ShippingMethod):
