@@ -1,29 +1,54 @@
 import sys
 import os
+import sqlite3
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.inventorymanager import ProductManager
 from src.product import Product
 
 
-USERS = {
-    "Nilgun": {"password": "admin123", "role": "manager"},
-    "Hakan": {"password": "hakosahilde33", "role": "customer", "email": "hakan@example.com"},
-    "Nur": {"password": "nuruyuyo00", "role": "customer", "email": "nur@example.com"},
-    "Leyla": {"password": "leylasahilde33", "role": "customer", "email": "leyla@example.com"},
-}
+def sign_up():
+    conn = sqlite3.connect("databases/users.db")
+
+    while True:
+        print("=======Sign Up=======")
+        username = input("Please enter a username: ")
+        password = input("Please enter a password: ")
+        email = input("\nPlease enter a email: ")
+
+        try:
+                user = conn.execute("SELECT * FROM users WHERE username = ?", (username,))
+                user = user.fetchone()
+
+                if  user:
+                    print("This username is already in use. Please choose a different one.")
+
+                else:
+                    query = "INSERT INTO users (username, password, role, email) VALUES (?, ?, ?, ?)"
+                    conn.execute(query, (username, password, 'customer', email))
+                    conn.commit()
+                    print("Your account has been created successfully.")
+                    break
+
+        except Exception as e:
+            print(f"Error: {e}")
 
 
-def login():
-    print("=======Login=======")
+def sign_in():
+    conn = sqlite3.connect("databases/users.db")
+
+    print("=======Sign In=======")
     username = input("Please enter a username: ")
     password = input("Please enter a password: ")
 
-    user = USERS.get(username)
+    user = conn.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = user.fetchone()
+    password_db = conn.execute("SELECT password FROM users WHERE username = ?", (username,))
+    password_db = password_db.fetchone()
 
-    if user and user["password"]==password:
+    if user and password_db[0]==password:
         print(f"Login successful. Welcome {username}!")
-        return username, user["role"], user.get("email")
+        return username, user[3], user[4]
     else:
         print("Wrong username or password.")
         return None, None, None
@@ -91,18 +116,48 @@ def manager_menu(inventory_manager):
         elif choice == "5":
             print("Good By Admin!")
             break
+
+        else:
+            print("Please enter a valid value.")
+
+
+def customer_menu():
+    pass
              
 
 def main():
 
-    inventory_manager = ProductManager()
-    username, role, mail = login()
+    while True:
+        print("\n--- Welcome to OOP Store ---")
+        print("1. Sign Up: ")
+        print("2. Sign In: ")
+        print("3. Exit: ")
+        choice = input("Choice: ")
 
-    if not username:
-        return
-    
-    if role == "manager":
-        manager_menu(inventory_manager)
+        if choice == "1":
+            sign_up()
+
+        elif choice == "2":
+            username, role, mail = sign_in()
+
+            if not username:
+                return
+            
+            if role == "manager":
+                inventory_manager = ProductManager()
+                manager_menu(inventory_manager)
+            
+            elif role == "customer":
+                customer_menu()
+            
+            else:
+                print("Unauthorized access")
+
+        elif choice == "3":
+            print("Good By!")
+            break
+        else:
+            print("Please enter a valid value.")
 
 
 if __name__ == "__main__":
