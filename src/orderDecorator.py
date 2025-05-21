@@ -3,7 +3,7 @@ def logOrderCreation(func):
     def wrapper(self, *args, **kwargs):
         print(" Order is being created....")
         result = func(self, *args, **kwargs)
-        print(f"Order created with ID: {self.id}")
+        print(f"Order created with ID: {result.id}")
         return result
     return wrapper
 #argüman sayısı sabitse args kwargs yazmayız parametreleri yazarız ama böylesi daha güvenli

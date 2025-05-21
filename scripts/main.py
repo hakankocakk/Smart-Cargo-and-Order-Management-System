@@ -5,6 +5,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.inventorymanager import ProductManager
 from src.product import Product
+from src.orderstatus import OrderStatus
+from src.customer import Customer
+from src.orderfactory import OrderFactory
+from src.shippingMethod import ShippingSelector
 
 
 
@@ -121,9 +125,59 @@ def manager_menu(inventory_manager):
         else:
             print("Please enter a valid value.")
 
+CUSTOMER_OBJECTS = {}
 
-def customer_menu():
-    pass
+def customer_menu(inventory_manager, username, mail):
+    print(f"\n--- Hoşgeldiniz, {username}! ---")
+    if username not in CUSTOMER_OBJECTS:
+        CUSTOMER_OBJECTS[username] = Customer(customer_id=1, name=username, surname="", phone_number="", email=mail, order_history=[], address="adres")
+    customer = CUSTOMER_OBJECTS[username]
+    order_factory = OrderFactory()
+    while True:
+        print("\n1. List the Products")
+        print("2. Filter by Category")
+        print("3. Create Order")
+        print("4. Show Order History")
+        print("5. Exit")
+        secim = input("Your choice: ")
+        if secim == "1":
+            display_products(inventory_manager)
+        elif secim == "2":
+            kategori = input("Category Name: ")
+            urunler = inventory_manager.filter_by_category(kategori)
+            for product in urunler:
+                print(f"ID: {product.id} | Name: {product.name} | Stock: {product.stock} | Price: ${product.price:.2f}")
+        elif secim == "3":
+            product_id = int(input("Product ID of your choice: "))
+            urunler = inventory_manager.list_products()
+            selected = [p for p in urunler if p.id == product_id]
+            if not selected:
+                print("Could not find the product.")
+                continue
+            adet = int(input("How many?: "))
+            if selected[0].stock < adet:
+                print("Product is out of stock!")
+                continue
+            urgency = input("Is it urgent? (high/low): ")
+            shipping_method = ShippingSelector.select_best_method(order_weight=adet, urgency=urgency)
+            product_list = [selected[0]] * adet
+            order = order_factory.create_order(order_id=product_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method)
+            order.attach(customer)
+            order.update_status(OrderStatus.SHIPPED)
+            print("Order has been created and saved.")
+        elif secim == "4":
+            # Sipariş geçmişini veritabanından çek ve göster
+            orders = order_factory.get_orders_by_customer(username)
+            if not orders:
+                print("No order history found.")
+            else:
+                print("Your Order History:")
+                for i, (oid, products, status, shipping, total) in enumerate(orders, 1):
+                    print(f"{i}. Order ID: {oid} | Products: {products} | Status: {status} | Shipping: {shipping} | Total: {total}")
+        elif secim == "5":
+            break
+        else:
+            print("Unvalid choice. Please try again.")
              
 
 def main():
@@ -149,13 +203,14 @@ def main():
                 manager_menu(inventory_manager)
             
             elif role == "customer":
-                customer_menu()
+                inventory_manager = ProductManager()
+                customer_menu(inventory_manager, username, mail)
             
             else:
                 print("Unauthorized access")
 
         elif choice == "3":
-            print("Good By!")
+            print("Good Bye!")
             break
         else:
             print("Please enter a valid value.")

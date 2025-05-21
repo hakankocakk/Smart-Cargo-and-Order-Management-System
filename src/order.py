@@ -1,22 +1,26 @@
+from __future__ import annotations 
 from typing import List
-from customer import Customer
-from product import Product
-from orderstatus import OrderStatus
-from shippingMethod import ShippingMethod
-from notificationService import NotificationService 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#from src.order import Order
+from src.customer import Customer
+from src.product import Product
+from src.orderstatus import OrderStatus
+from src.shippingMethod import ShippingMethod
+from src.observer import Subject
 
-class Order:
+class Order(Subject):
     def __init__(self, order_id: int, customer: Customer,
                  products: List[Product],
                  status: OrderStatus,
-                 shipping_method: ShippingMethod,
-                 notification_service: NotificationService):
+                 shipping_method: ShippingMethod):
+        super().__init__()
         self.__id = order_id
         self.__customer = customer
         self.__products = products
         self.__status = status
         self.__shipping_method = shipping_method
-        self.__notification_service = notification_service 
 
     def calculate_total(self) -> float:
         """Calculate total price of products plus shipping cost."""
@@ -25,17 +29,9 @@ class Order:
         return product_total + shipping_cost
 
     def update_status(self, new_status: OrderStatus):
-        """Update the order status and send a notification.""" 
+        """Update the order status."""
         self.__status = new_status
-        message = f"Your order {self.id} status has been updated to {new_status.value}."        # Status_degistiginde gidecek
-        if hasattr(self.__customer, 'email') and self.__notification_service.notification_type == "email":
-            contact_info = self.__customer.email
-            self.__notification_service.send_notification(contact_info, message)
-        elif hasattr(self.__customer, 'phone_number') and self.__notification_service.notification_type == "sms": 
-            contact_info = self.__customer.phone_number
-            self.__notification_service.send_notification(contact_info, message)
-        else:
-            print(f"Could not send notification for order {self.id}: Contact info or type mismatch.")
+        self.notify(f"Sipariş {self.__id} durumu güncellendi: {new_status.value}")
 
     @property
     def id(self):
@@ -48,4 +44,13 @@ class Order:
     @property
     def customer(self):
         return self.__customer
+    
+    @property
+    def products(self):
+        """Get a copy of the products list to prevent direct modification."""
+        return list(self.__products)
 
+    @property
+    def shipping_method(self):
+        """Get the shipping method."""
+        return self.__shipping_method
