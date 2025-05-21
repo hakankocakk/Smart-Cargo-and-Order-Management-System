@@ -31,7 +31,7 @@ class Order(Subject):
     def update_status(self, new_status: OrderStatus):
         """Update the order status."""
         self.__status = new_status
-        self.notify(f"Sipariş {self.__id} durumu güncellendi: {new_status.value}")
+        self.notify(f"Order {self.__id} status has been updated: {new_status.value}")
 
     @property
     def id(self):
