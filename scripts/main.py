@@ -22,18 +22,18 @@ def sign_up():
         email = input("\nPlease enter a email: ")
 
         try:
-                user = conn.execute("SELECT * FROM users WHERE username = ?", (username,))
-                user = user.fetchone()
+            user = conn.execute("SELECT * FROM users WHERE username = ?", (username,))
+            user = user.fetchone()
 
-                if  user:
-                    print("This username is already in use. Please choose a different one.")
+            if  user:
+                print("This username is already in use. Please choose a different one.")
 
-                else:
-                    query = "INSERT INTO users (username, password, role, email) VALUES (?, ?, ?, ?)"
-                    conn.execute(query, (username, password, 'customer', email))
-                    conn.commit()
-                    print("Your account has been created successfully.")
-                    break
+            else:
+                query = "INSERT INTO users (username, password, role, email) VALUES (?, ?, ?, ?)"
+                conn.execute(query, (username, password, 'customer', email))
+                conn.commit()
+                print("Your account has been created successfully.")
+                break
 
         except Exception as e:
             print(f"Error: {e}")
@@ -223,16 +223,15 @@ def main():
 
         elif choice == "2":
             username, role, mail = sign_in()
+            inventory_manager = ProductManager()
 
             if not username:
                 return
             
             if role == "manager":
-                inventory_manager = ProductManager()
                 manager_menu(inventory_manager)
             
             elif role == "customer":
-                inventory_manager = ProductManager()
                 customer_menu(inventory_manager, username, mail)
             
             else:
