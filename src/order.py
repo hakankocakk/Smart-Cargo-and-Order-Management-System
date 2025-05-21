@@ -32,6 +32,9 @@ class Order(Subject):
         """Update the order status."""
         self.__status = new_status
         self.notify(f"Order {self.__id} status has been updated: {new_status.value}")
+    def __str__(self):
+        product_names = ', '.join([product.name for product in self.__products])
+        return f"Order ID: {self.__id}, Customer: {self.__customer.name}, Products: {product_names}, Status: {self.__status.value}, Shipping Method: {self.__shipping_method.__class__.__name__}"
 
     @property
     def id(self):
