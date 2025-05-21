@@ -36,7 +36,13 @@ class OrderFactory:
         order = Order(order_id, customer, products, status, shipping_method)
         self.save_order_to_db(order)
         return order
-
+    
+    def get_next_order_id(self):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT MAX(id) FROM orders')
+        result = cursor.fetchone()
+        return (result[0] + 1) if result[0] is not None else 1
+    
     def save_order_to_db(self, order: Order):
         cursor = self.conn.cursor()
         product_names = ', '.join([p.name for p in order._Order__products])  # accessing private attribute

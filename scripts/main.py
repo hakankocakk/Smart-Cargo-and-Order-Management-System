@@ -161,7 +161,8 @@ def customer_menu(inventory_manager, username, mail):
             urgency = input("Is it urgent? (high/low): ")
             shipping_method = ShippingSelector.select_best_method(order_weight=adet, urgency=urgency)
             product_list = [selected[0]] * adet
-            order = order_factory.create_order(order_id=product_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method)
+            order_id = order_factory.get_next_order_id()
+            order = order_factory.create_order(order_id=order_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method)
             order.attach(customer)
             order.update_status(OrderStatus.SHIPPED)
             print("Order has been created and saved.")

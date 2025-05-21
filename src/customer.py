@@ -1,5 +1,6 @@
+from src.observer import Observer
 
-class Customer:
+class Customer(Observer):
     def __init__(self, customer_id, name, surname,phone_number, email, order_history, address):
         self.__customer_id = customer_id
         self.name = name
@@ -24,23 +25,26 @@ class Customer:
     def get__address(self):
         return self.__address
     
+    def update(self, message):
+        print(f"Notification for {self.name} {self.surname}: {message}")
+
     def update_address(self, new_address):
         self.__address = new_address
-        print(f"Adres güncellendi: {new_address}")
+        print(f"Address has been updated: {new_address}")
 
     def add_order(self, order):
         self.__order_history.append(order)
-        print(f"Yeni sipariş eklşendi: {order}")
+        print(f"New order has been added: {order}")
 
     def print_order_history(self):
-        print("Sipariş Geçmişi: ")
+        print("Order History: ")
         for i, order in enumerate(self.__order_history, 1):
             print(f"{i} . {order}")
 
     def print_summary(self):
-        print(f"Müşteri ID: {self.__customer_id}")
-        print(f"Ad Soyad: {self.name} {self.surname}")
-        print(f"Telefon: {self.__phone_number}")
+        print(f"Customer ID: {self.__customer_id}")
+        print(f"Full Name: {self.name} {self.surname}")
+        print(f"Telephone: {self.__phone_number}")
         print(f"Email: {self.__email}")
-        print(f"Adres: {self.__address}")
-        print(f"Sipariş Sayısı: {len(self.__order_history)}")
+        print(f"Addres: {self.__address}")
+        print(f"Order Count: {len(self.__order_history)}")
