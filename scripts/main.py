@@ -164,7 +164,7 @@ def customer_menu(inventory_manager, username, mail):
             order_id = order_factory.get_next_order_id()
             order = order_factory.create_order(order_id=order_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method)
             order.attach(customer)
-            order.update_status(OrderStatus.SHIPPED)
+            order.update_status(OrderStatus.PREPARING)
             print("Order has been created and saved.")
         elif secim == "4":
             # Sipariş geçmişini veritabanından çek ve göster
