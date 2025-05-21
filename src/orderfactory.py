@@ -67,7 +67,7 @@ class OrderFactory:
         # Stok kontrolü: stokta olmayan ürün sipariş edilemez
         for product in products:
             if product.stock <= 0:
-                raise Exception(f"{product.name} stokta yok, sipariş edilemez.")
+                raise Exception(f"{product.name} is out of stock.")
         order = Order(order_id, customer, products, status, shipping_method)
         self.save_order_to_db(order)
         # Sipariş müşteri geçmişine eklenir
