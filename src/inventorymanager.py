@@ -1,11 +1,19 @@
 import sqlite3
 from src.product import Product
 
-
+#Singleton Desing Pattern
 class ProductManager:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(ProductManager, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self, db_name="databases/store.db"):
-        self.conn = sqlite3.connect(db_name)
-        self.create_table()
+        if not hasattr(self, 'conn'):
+            self.conn = sqlite3.connect(db_name)
+            self.create_table()
 
 
     def create_table(self):
