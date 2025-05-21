@@ -148,19 +148,47 @@ def customer_menu(inventory_manager, username, mail):
             for product in urunler:
                 print(f"ID: {product.id} | Name: {product.name} | Stock: {product.stock} | Price: ${product.price:.2f}")
         elif secim == "3":
-            product_id = int(input("Product ID of your choice: "))
-            urunler = inventory_manager.list_products()
-            selected = [p for p in urunler if p.id == product_id]
-            if not selected:
-                print("Could not find the product.")
+            cart = []
+            while True:
+                display_products(inventory_manager)     
+                product_id = int(input("Product ID of your choice: "))     
+                urunler = inventory_manager.list_products()
+                selected = [p for p in urunler if p.id == product_id]
+                if not selected:
+                    print("Could not find the product.")
+                    continue
+                adet = int(input("How many?: "))
+                if selected[0].stock < adet:
+                    print("Product is out of stock!")
+                    continue
+                cart.append((selected[0], adet))
+                print(f"Added {adet} of {selected[0].name} to your cart.")
+                kategori = selected[0].category
+                print(f"\nSee other products from '{kategori}' category:")
+                kategori_urunler = [p for p in urunler if p.category == kategori and p.id != selected[0].id]
+                if kategori_urunler:
+                    for product in kategori_urunler:
+                        print(f"ID: {product.id} | Name: {product.name} | Stock: {product.stock} | Price: ${product.price:.2f}")
+                else:
+                    print("No other products found in this category.")
+                    
+                            
+                devam = input("Do you want to add more products? (y/n): ").strip().lower()
+                if devam != "y":
+                    break
+
+            if not cart:
+                print("No products selected.")
                 continue
-            adet = int(input("How many?: "))
-            if selected[0].stock < adet:
-                print("Product is out of stock!")
-                continue
+
             urgency = input("Is it urgent? (high/low): ")
-            shipping_method = ShippingSelector.select_best_method(order_weight=adet, urgency=urgency)
-            product_list = [selected[0]] * adet
+            total_items = sum(adet for _, adet in cart)
+            shipping_method = ShippingSelector.select_best_method(order_weight=total_items, urgency=urgency)
+            product_list = []
+            for product, adet in cart:
+                product_list.extend([product] * adet)
+                inventory_manager.reduce_stock(product.name, adet)
+
             order_id = order_factory.get_next_order_id()
             order = order_factory.create_order(order_id=order_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method)
             order.attach(customer)
