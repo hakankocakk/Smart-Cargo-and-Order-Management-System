@@ -172,9 +172,16 @@ def customer_menu(inventory_manager, username, mail):
                 else:
                     print("No other products found in this category.")
                     
-                            
-                devam = input("Do you want to add more products? (y/n): ").strip().lower()
-                if devam != "y":
+                while True:
+                    devam = input("Do you want to add more products? (y/n): ").strip().lower()
+                    if devam == "y":
+                        break
+                    elif devam == "n":
+                        break
+                    else:
+                        print("Invalid input. Please enter 'y' or 'n'.")
+                        
+                if devam == "n":
                     break
 
             if not cart:
