@@ -9,6 +9,7 @@ from src.orderstatus import OrderStatus
 from src.customer import Customer
 from src.orderfactory import OrderFactory
 from src.shippingMethod import ShippingSelector
+from src.cart import Cart
 
 
 
@@ -148,7 +149,7 @@ def customer_menu(inventory_manager, username, mail):
             for product in urunler:
                 print(f"ID: {product.id} | Name: {product.name} | Stock: {product.stock} | Price: ${product.price:.2f}")
         elif secim == "3":
-            cart = []
+            cart = Cart()
             while True:
                 display_products(inventory_manager)     
                 product_id = int(input("Product ID of your choice: "))     
@@ -161,7 +162,7 @@ def customer_menu(inventory_manager, username, mail):
                 if selected[0].stock < adet:
                     print("Product is out of stock!")
                     continue
-                cart.append((selected[0], adet))
+                cart.add(selected[0], adet)
                 print(f"Added {adet} of {selected[0].name} to your cart.")
                 kategori = selected[0].category
                 print(f"\nSee other products from '{kategori}' category:")
@@ -184,7 +185,7 @@ def customer_menu(inventory_manager, username, mail):
                 if devam == "n":
                     break
 
-            if not cart:
+            if cart.is_empty():
                 print("No products selected.")
                 continue
 
