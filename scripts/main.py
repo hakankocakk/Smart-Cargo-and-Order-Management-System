@@ -10,6 +10,7 @@ from src.customer import Customer
 from src.orderfactory import OrderFactory
 from src.shippingMethod import ShippingSelector
 from src.cart import Cart
+from src.ordermanagement import OrderManager
 
 
 
@@ -67,7 +68,7 @@ def display_products(inventory_manager):
         print(f"ID: {product.id} | Name: {product.name} | Category: {product.category} | Stock: {product.stock} | Price: ${product.price:.2f}")
 
 
-def manager_menu(inventory_manager):
+def manager_menu(inventory_manager, order_manager):
     
     while True:
         print("\n--- Manager Menu ---")
@@ -75,7 +76,10 @@ def manager_menu(inventory_manager):
         print("2. Add Product")
         print("3. Reduce Stock")
         print("4. Update Stock")
-        print("5. Exit")
+        print("5. Show Order")
+        print("6. Filter by Order Status")
+        print("7. Update Order Status")
+        print("8. Exit")
         choice = input("Choice: ")
 
         if choice == "1":
@@ -120,6 +124,28 @@ def manager_menu(inventory_manager):
                 print(f"Error: {e}")
 
         elif choice == "5":
+            try:
+                order_manager.show_orders()
+            except Exception as e:
+                print(f"Error: {e}")
+        
+        elif choice == "6":
+            try:
+                status = input("Order Status ('Preparing', 'Shipped', 'Delivered'): ")
+                order_manager.filter_by_order_status(status)
+            except Exception as e:
+                print(f"Error: {e}")
+        
+        elif choice == "7":
+            try:
+                order_manager.show_orders()
+                order_id = int(input("Order ID: "))
+                status = input("Order Status ('Preparing', 'Shipped', 'Delivered'): ")
+                order_manager.update_by_order_status(order_id, status)
+            except Exception as e:
+                print(f"Error: {e}")
+
+        elif choice == "8":
             print("Good By Admin!")
             break
 
@@ -237,7 +263,8 @@ def main():
                 return
             
             if role == "manager":
-                manager_menu(inventory_manager)
+                order_manager = OrderManager()
+                manager_menu(inventory_manager, order_manager)
             
             elif role == "customer":
                 customer_menu(inventory_manager, username, mail)
