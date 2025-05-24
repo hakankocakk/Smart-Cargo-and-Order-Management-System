@@ -1,5 +1,9 @@
 import sqlite3
 from src.product import Product
+from src.product_factory import ProductFactory
+from src.electronics_product import ElectronicsProduct
+from src.book_product import BookProduct 
+
 
 #Singleton Desing Pattern
 class ProductManager:
@@ -14,6 +18,7 @@ class ProductManager:
         if not hasattr(self, 'conn'):
             self.conn = sqlite3.connect(db_name)
             self.create_table()
+            self.product_factory = ProductFactory()
 
 
     def create_table(self):
@@ -24,7 +29,10 @@ class ProductManager:
                 name TEXT NOT NULL,
                 category TEXT NOT NULL,
                 stock INTEGER NOT NULL,
-                price REAL NOT NULL
+                price REAL NOT NULL,
+                warranty_years INTEGER,
+                author TEXT,              
+                publisher TEXT            
             );
             """
             self.conn.execute(query)
@@ -52,8 +60,20 @@ class ProductManager:
                 self.conn.execute("UPDATE Product SET stock = ? WHERE id = ?", (new_stock, product.id))
                 self.conn.commit()
             else:
-                query = "INSERT INTO Product (id, name, category, stock, price) VALUES (?, ?, ?, ?, ?)"
-                self.conn.execute(query, (product.id, product.name, product.category, product.stock, product.price))
+                query = "INSERT INTO Product (id, name, category, stock, price, warranty_years, author, publisher) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+
+                warranty_years = None
+                author = None
+                publisher = None
+
+                if isinstance(product, ElectronicsProduct):
+                    warranty_years = product.warranty_years
+                    product.category = "Electronics"
+                elif isinstance(product, BookProduct):
+                    author = product.author
+                    publisher = product.publisher
+                    product.category = "Books"
+                self.conn.execute(query, (product.id, product.name, product.category, product.stock, product.price, warranty_years, author, publisher))
                 self.conn.commit()
         except Exception as e:
                 print(f"Error: {e}")
@@ -77,19 +97,39 @@ class ProductManager:
         except Exception as e:
                 print(f"Error: {e}")
 
+    
+    def _create_product_from_row(self, row) -> Product:
+        """
+        Yardımcı metot: Veritabanından çekilen bir satırı uygun Product nesnesine dönüştürür.
+        """
+        product_id, name, category, stock, price, warranty_years, author, publisher = row
+
+        if category.lower() == "electronics":
+            return self.product_factory.create_product(
+                "electronics", id=product_id, name=name, stock=stock, price=price, warranty_years=warranty_years
+            )
+        elif category.lower() == "books":
+            return self.product_factory.create_product(
+                "book", id=product_id, name=name, stock=stock, price=price, author=author, publisher=publisher
+            )
+        else:
+            return self.product_factory.create_product(
+                "standard", id=product_id, name=name, category=category, stock=stock, price=price
+            )
+
 
     def list_products(self):
         try:
-            cursor = self.conn.execute("SELECT id, name, category, stock, price FROM Product")
-            return [Product(id=row[0], name=row[1], category=row[2], stock=row[3], price=row[4]) for row in cursor]
+            cursor = self.conn.execute("SELECT id, name, category, stock, price, warranty_years, author, publisher FROM Product")
+            return [self._create_product_from_row(row) for row in cursor]
         except Exception as e:
                 print(f"Error: {e}")
 
 
     def filter_by_category(self, category: str):
         try:
-            cursor = self.conn.execute("SELECT id, name, category, stock, price FROM Product WHERE category = ?", (category,))
-            return [Product(id=row[0], name=row[1], category=row[2], stock=row[3], price=row[4]) for row in cursor]
+            cursor = self.conn.execute("SELECT id, name, category, stock, price, warranty_years, author, publisher FROM Product WHERE category = ?", (category,))
+            return [self._create_product_from_row(row) for row in cursor]
         except Exception as e:
                 print(f"Error: {e}")
 
