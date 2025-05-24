@@ -11,6 +11,9 @@ from src.orderfactory import OrderFactory
 from src.shippingMethod import ShippingSelector
 from src.cart import Cart
 from src.ordermanagement import OrderManager
+from src.product_factory import ProductFactory
+from src.electronics_product import ElectronicsProduct
+from src.book_product import BookProduct
 
 
 
@@ -63,12 +66,24 @@ def sign_in():
 
 def display_products(inventory_manager):
     print("\n======= Available Products =======")
-    products = inventory_manager.list_products()
+    products = inventory_manager.list_products() # Bu, artık doğru alt sınıf nesnelerini döndürecek
+
+    if not products:
+        print("No products available.")
+        return
+
     for product in products:
-        print(f"ID: {product.id} | Name: {product.name} | Category: {product.category} | Stock: {product.stock} | Price: ${product.price:.2f}")
+        product_info = f"ID: {product.id} | Name: {product.name} | Category: {product.category} | Stock: {product.stock} | Price: ${product.price:.2f}"
+
+        if isinstance(product, ElectronicsProduct):
+            product_info += f" | Warranty: {product.warranty_years} years"
+        elif isinstance(product, BookProduct):
+            product_info += f" | Author: {product.author} | Publisher: {product.publisher}"
+            
+        print(product_info)
 
 
-def manager_menu(inventory_manager, order_manager):
+def manager_menu(inventory_manager, order_manager, product_factory):
     
     while True:
         print("\n--- Manager Menu ---")
@@ -92,11 +107,32 @@ def manager_menu(inventory_manager, order_manager):
             try:
                 product_id = int(input("Enter a product id: "))
                 product_name = input("Enter a product name: ")
-                product_category = input("Enter a product category: ")
+                #product_category = input("Enter a product category: ")
+                product_type = input("Enter product type (Electronics, Book, Standard): ").lower()
                 product_stock = int(input("Enter a product stock: "))
                 product_price = input("Enter a product price: ")
 
-                product = Product(id=product_id, name=product_name, category=product_category, stock=product_stock, price=product_price)
+                if product_type == "electronics":
+                    warranty_years = int(input("Enter warranty years: "))
+                    product = product_factory.create_product(
+                        product_type, id=product_id, name=product_name,
+                        stock=product_stock, price=product_price, warranty_years=warranty_years
+                    )
+                elif product_type == "book":
+                    author = input("Enter author: ")
+                    publisher = input("Enter publisher: ")
+                    product = product_factory.create_product(
+                        product_type, id=product_id, name=product_name,
+                        stock=product_stock, price=product_price, author=author, publisher=publisher
+                    )
+                else: # Varsayılan veya bilinmeyen tip için
+                    product_category = input("Enter product category (e.g., General): ") # Varsayılan kategori
+                    product = product_factory.create_product(
+                        "standard", id=product_id, name=product_name,
+                        category=product_category, stock=product_stock, price=product_price # category'yi Product'a ilet
+                    )
+
+                #product = Product(id=product_id, name=product_name, category=product_category, stock=product_stock, price=product_price)
                 inventory_manager.add_product(product)
                 print("Product added successfully.")
             except Exception as e:
@@ -264,7 +300,8 @@ def main():
             
             if role == "manager":
                 order_manager = OrderManager()
-                manager_menu(inventory_manager, order_manager)
+                product_factory = ProductFactory()
+                manager_menu(inventory_manager, order_manager, product_factory)
             
             elif role == "customer":
                 customer_menu(inventory_manager, username, mail)
