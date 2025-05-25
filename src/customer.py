@@ -26,7 +26,7 @@ class Customer(Observer):
         return self.__address
     
     def update(self, message):
-        print(f"Notification for {self.name} {self.surname}: {message}")
+        print(f"\nNotification for {self.name} {self.surname}: {message}")
 
     def update_address(self, new_address):
         self.__address = new_address
