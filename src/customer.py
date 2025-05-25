@@ -10,19 +10,19 @@ class Customer(Observer):
         self.__order_history= order_history
         self.__address = address
 
-    def get__customer_id(self):
+    def get_customer_id(self):
         return self.__customer_id
     
-    def get__phone_number(self):
+    def get_phone_number(self):
         return self.__phone_number
     
-    def get__email(self):
+    def get_email(self):
         return self.__email
     
-    def get__order_history(self):
+    def get_order_history(self):
         return self.__order_history
     
-    def get__address(self):
+    def get_address(self):
         return self.__address
     
     def update(self, message):
