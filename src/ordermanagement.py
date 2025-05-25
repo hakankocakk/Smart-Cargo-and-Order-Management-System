@@ -1,6 +1,7 @@
 import sqlite3
 
 
+#Singleton Desing Pattern
 class OrderManager:
     _instance = None
 
