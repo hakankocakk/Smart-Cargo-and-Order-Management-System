@@ -9,6 +9,7 @@ from src.product import Product
 from src.orderstatus import OrderStatus
 from src.shippingMethod import ShippingMethod
 from src.orderDecorator import logOrderCreation
+from src.notificationService import NotificationService
 
 
 class OrderFactory:
@@ -54,7 +55,7 @@ class OrderFactory:
         ''', (
             order.id,
             order.customer.name,
-            order.customer.get__address(),  # Changed to use the getter method
+            order.customer.get_address(),  # Changed to use the getter method
             product_names,
             order.status.value,
             shipping_method_name,
@@ -63,12 +64,12 @@ class OrderFactory:
         self.conn.commit() 
     @logOrderCreation
     def create_order(self, order_id: int, customer: Customer, products: List[Product],
-                     status: OrderStatus, shipping_method: ShippingMethod) -> Order:
+                     status: OrderStatus, shipping_method: ShippingMethod, notification_type: NotificationService) -> Order:
         # Stok kontrolü: stokta olmayan ürün sipariş edilemez
         for product in products:
             if product.stock <= 0:
                 raise Exception(f"{product.name} is out of stock.")
-        order = Order(order_id, customer, products, status, shipping_method)
+        order = Order(order_id, customer, products, status, shipping_method, notification_type)
         self.save_order_to_db(order)
         # Sipariş müşteri geçmişine eklenir
         customer.add_order(order)
