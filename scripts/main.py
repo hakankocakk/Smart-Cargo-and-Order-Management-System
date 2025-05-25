@@ -17,7 +17,7 @@ from src.ordermanagement import OrderManager
 from src.product_factory import ProductFactory
 from src.electronics_product import ElectronicsProduct
 from src.book_product import BookProduct
-
+from src.notificationService import NotificationService
 
 CUSTOMER_OBJECTS = {}
 current_order_statuses = {}
@@ -205,11 +205,16 @@ def pool_for_order_status(customer):
             cursor.execute("SELECT * FROM orders WHERE customer_name = ?", (customer.name,))
             my_orders = cursor.fetchall()
             for i in my_orders:
-                order = Order(i[0], i[1], [i[3]], i[4], i[5])
+                order = Order(i[0], customer, [i[3]], i[4], i[5], NotificationService("email"))
                 if order.id not in current_order_statuses or current_order_statuses[order.id] != order.status:
                     if order.id in current_order_statuses:
                         order.attach(customer)
-                        order.notify(f"Order {order.id} status has been updated: {order.status}")
+                        if order.status == "Preparing":
+                            order.update_status(OrderStatus.PREPARING)
+                        elif order.status == "Shipped":
+                            order.update_status(OrderStatus.SHIPPED)
+                        elif order.status == "Delivered":
+                            order.update_status(OrderStatus.DELIVERED)
                         print_customer_menu()
                     current_order_statuses[order.id] = order.status
         except Exception as e:
@@ -302,7 +307,7 @@ def customer_menu(inventory_manager, username, mail):
                 inventory_manager.reduce_stock(product.name, adet)
 
             order_id = order_factory.get_next_order_id()
-            order = order_factory.create_order(order_id=order_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method)
+            order = order_factory.create_order(order_id=order_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method, notification_type=NotificationService("email"))
             order.attach(customer)
             order.update_status(OrderStatus.PREPARING)
             print("Order has been created and saved.")
