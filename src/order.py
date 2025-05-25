@@ -9,29 +9,49 @@ from src.product import Product
 from src.orderstatus import OrderStatus
 from src.shippingMethod import ShippingMethod
 from src.observer import Subject
+from src.notificationService import NotificationService
+
 
 class Order(Subject):
     def __init__(self, order_id: int, customer: Customer,
                  products: List[Product],
                  status: OrderStatus,
-                 shipping_method: ShippingMethod):
+                 shipping_method: ShippingMethod,
+                 notification_service: NotificationService):
         super().__init__()
         self.__id = order_id
         self.__customer = customer
         self.__products = products
         self.__status = status
         self.__shipping_method = shipping_method
+        self.__notification_service = notification_service
 
     def calculate_total(self) -> float:
         """Calculate total price of products plus shipping cost."""
         product_total = sum(product.price for product in self.__products)
         shipping_cost = self.__shipping_method.calculateCoat()
         return product_total + shipping_cost
+    
+    #def update_status(self, new_status: OrderStatus):
+        """Update the order status."""
+        #self.__status = new_status.value
+        #self.notify(f"Order {self.__id} status has been updated: {new_status.value}")
+        
 
+    
     def update_status(self, new_status: OrderStatus):
         """Update the order status."""
+        """Update the order status and send a notification.""" 
         self.__status = new_status.value
-        self.notify(f"Order {self.__id} status has been updated: {new_status.value}")
+        message = f"Your order {self.id} status has been updated to {new_status.value}."        # Status_degistiginde gidecek
+        if hasattr(self.__customer, '_Customer__email') and self.__notification_service.notification_type == "email":
+            contact_info = self.__customer.get_email()
+            self.__notification_service.send_notification(contact_info, message)
+        elif hasattr(self.__customer, '__phone_number') and self.__notification_service.notification_type == "sms": 
+            contact_info = self.__customer.get_phone_number()
+            self.__notification_service.send_notification(contact_info, message)
+        else:
+            print(f"Could not send notification for order {self.id}: Contact info or type mismatch.")
 
     def __str__(self):
         product_names = ', '.join([product.name for product in self.__products])
