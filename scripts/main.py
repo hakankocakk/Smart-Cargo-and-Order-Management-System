@@ -1,10 +1,13 @@
 import sys
 import os
 import sqlite3
+import threading
+import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.inventorymanager import ProductManager
 from src.product import Product
+from src.order import Order
 from src.orderstatus import OrderStatus
 from src.customer import Customer
 from src.orderfactory import OrderFactory
@@ -15,6 +18,9 @@ from src.product_factory import ProductFactory
 from src.electronics_product import ElectronicsProduct
 from src.book_product import BookProduct
 
+
+CUSTOMER_OBJECTS = {}
+current_order_statuses = {}
 
 
 def sign_up():
@@ -188,7 +194,36 @@ def manager_menu(inventory_manager, order_manager, product_factory):
         else:
             print("Please enter a valid value.")
 
-CUSTOMER_OBJECTS = {}
+
+
+def pool_for_order_status(customer):
+    global current_order_statuses
+    while True:
+        conn = sqlite3.connect("databases/orders.db")
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT * FROM orders WHERE customer_name = ?", (customer.name,))
+            my_orders = cursor.fetchall()
+            for i in my_orders:
+                order = Order(i[0], i[1], [i[3]], i[4], i[5])
+                if order.id not in current_order_statuses or current_order_statuses[order.id] != order.status:
+                    if order.id in current_order_statuses:
+                        order.attach(customer)
+                        order.notify(f"Order {order.id} status has been updated: {order.status}")
+                        print_customer_menu()
+                    current_order_statuses[order.id] = order.status
+        except Exception as e:
+                print(f"Error: {e}")
+        time.sleep(10)
+
+
+def print_customer_menu():
+    print("\n1. List the Products")
+    print("2. Filter by Category")
+    print("3. Create Order")
+    print("4. Show Order History")
+    print("5. Exit")
+    print("Your choice: ")
 
 def customer_menu(inventory_manager, username, mail):
     print(f"\n--- Hoşgeldiniz, {username}! ---")
@@ -196,6 +231,13 @@ def customer_menu(inventory_manager, username, mail):
         CUSTOMER_OBJECTS[username] = Customer(customer_id=1, name=username, surname="", phone_number="", email=mail, order_history=[], address="adres")
     customer = CUSTOMER_OBJECTS[username]
     order_factory = OrderFactory()
+
+
+    polling_thread = threading.Thread(target=pool_for_order_status, args=(customer,))
+    polling_thread.daemon = True
+    polling_thread.start()
+
+
     while True:
         print("\n1. List the Products")
         print("2. Filter by Category")
