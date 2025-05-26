@@ -29,7 +29,7 @@ class Order(Subject):
     def calculate_total(self) -> float:
         """Calculate total price of products plus shipping cost."""
         product_total = sum(product.price for product in self.__products)
-        shipping_cost = self.__shipping_method.calculateCoat()
+        shipping_cost = self.__shipping_method.calculateCost()
         return product_total + shipping_cost
     
     #def update_status(self, new_status: OrderStatus):
@@ -43,7 +43,10 @@ class Order(Subject):
         """Update the order status."""
         """Update the order status and send a notification.""" 
         self.__status = new_status.value
-        message = f"Your order {self.id} status has been updated to {new_status.value}."        # Status_degistiginde gidecek
+        if self.__status == "Preparing":
+            self.notify(f"Order {self.__id} status has been updated: {new_status.value}")
+
+        message = f"Your order {self.id} status has been updated to {new_status.value}."
         if hasattr(self.__customer, '_Customer__email') and self.__notification_service.notification_type == "email":
             contact_info = self.__customer.get_email()
             self.__notification_service.send_notification(contact_info, message)
