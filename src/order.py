@@ -47,7 +47,7 @@ class Order(Subject):
         if hasattr(self.__customer, '_Customer__email') and self.__notification_service.notification_type == "email":
             contact_info = self.__customer.get_email()
             self.__notification_service.send_notification(contact_info, message)
-        elif hasattr(self.__customer, '__phone_number') and self.__notification_service.notification_type == "sms": 
+        elif hasattr(self.__customer, '_Customer__phone_number') and self.__notification_service.notification_type == "sms": 
             contact_info = self.__customer.get_phone_number()
             self.__notification_service.send_notification(contact_info, message)
         else:
