@@ -18,7 +18,7 @@ class NotificationService:
             customer_email (str): Bildirimin gönderileceği müşterinin e-posta adresi.
             message (str): Gönderilecek e-posta mesajinin içeriği.
         """
-        print(f"Email to {customer_email}: {message}")
+        print(f"\nEmail to {customer_email}: {message}")
 
     def sendSMS(self, customer_phone: str, message: str):
         """
@@ -28,7 +28,7 @@ class NotificationService:
             customer_phone (str): Bildirimin gönderileceği müşterinin telefon numarası.
             message (str): Gönderilecek SMS mesajinin içeriği.
         """
-        print(f"SMS to {customer_phone}: {message}")
+        print(f"\nSMS to {customer_phone}: {message}")
 
     def send_notification(self, customer_contact: str, message: str):
         """
