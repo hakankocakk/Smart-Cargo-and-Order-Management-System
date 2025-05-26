@@ -28,9 +28,14 @@ def sign_up():
 
     while True:
         print("=======Sign Up=======")
+        name = input("Please enter a name: ")
+        surname = input("Please enter a surname: ")
         username = input("Please enter a username: ")
         password = input("Please enter a password: ")
         email = input("\nPlease enter a email: ")
+        phone_number = input("\nPlease enter a phone number: ")
+        address = input("\nPlease enter a address: ")
+
 
         try:
             user = conn.execute("SELECT * FROM users WHERE username = ?", (username,))
@@ -40,8 +45,8 @@ def sign_up():
                 print("This username is already in use. Please choose a different one.")
 
             else:
-                query = "INSERT INTO users (username, password, role, email) VALUES (?, ?, ?, ?)"
-                conn.execute(query, (username, password, 'customer', email))
+                query = "INSERT INTO users (username, password, role, name, surname, phone_number, email, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                conn.execute(query, (username, password, 'customer', name, surname, phone_number, email, address))
                 conn.commit()
                 print("Your account has been created successfully.")
                 break
@@ -64,10 +69,10 @@ def sign_in():
 
     if user and password_db[0]==password:
         print(f"Login successful. Welcome {username}!")
-        return username, user[3], user[4]
+        return user
     else:
         print("Wrong username or password.")
-        return None, None, None
+        return None
 
 
 def display_products(inventory_manager):
@@ -230,13 +235,14 @@ def print_customer_menu():
     print("5. Exit")
     print("Your choice: ")
 
-def customer_menu(inventory_manager, username, mail):
-    print(f"\n--- Hoşgeldiniz, {username}! ---")
-    if username not in CUSTOMER_OBJECTS:
-        CUSTOMER_OBJECTS[username] = Customer(customer_id=1, name=username, surname="", phone_number="", email=mail, order_history=[], address="adres")
-    customer = CUSTOMER_OBJECTS[username]
+def customer_menu(inventory_manager, user):
+    print(f"\n--- Hoşgeldiniz, {user[1]}! ---")
+    if user[1] not in CUSTOMER_OBJECTS:
+        CUSTOMER_OBJECTS[user[1]] = Customer(customer_id=user[0], name=user[4], surname=user[5], phone_number=user[6], email=user[7], order_history=[], address=user[8])
+    customer = CUSTOMER_OBJECTS[user[1]]
     order_factory = OrderFactory()
 
+    username = user[1]
 
     polling_thread = threading.Thread(target=pool_for_order_status, args=(customer,))
     polling_thread.daemon = True
@@ -299,6 +305,7 @@ def customer_menu(inventory_manager, username, mail):
                 continue
 
             urgency = input("Is it urgent? (high/low): ")
+            notification = input("Notification service type (email/sms): ")
             total_items = sum(adet for _, adet in cart)
             shipping_method = ShippingSelector.select_best_method(order_weight=total_items, urgency=urgency)
             product_list = []
@@ -307,7 +314,7 @@ def customer_menu(inventory_manager, username, mail):
                 inventory_manager.reduce_stock(product.name, adet)
 
             order_id = order_factory.get_next_order_id()
-            order = order_factory.create_order(order_id=order_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method, notification_type=NotificationService("email"))
+            order = order_factory.create_order(order_id=order_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method, notification_type=NotificationService(notification))
             order.attach(customer)
             order.update_status(OrderStatus.PREPARING)
             print("Order has been created and saved.")
@@ -339,19 +346,19 @@ def main():
             sign_up()
 
         elif choice == "2":
-            username, role, mail = sign_in()
+            user = sign_in()
             inventory_manager = ProductManager()
 
-            if not username:
+            if not user:
                 return
             
-            if role == "manager":
+            if user[3] == "manager":
                 order_manager = OrderManager()
                 product_factory = ProductFactory()
                 manager_menu(inventory_manager, order_manager, product_factory)
             
-            elif role == "customer":
-                customer_menu(inventory_manager, username, mail)
+            elif user[3] == "customer":
+                customer_menu(inventory_manager, user)
             
             else:
                 print("Unauthorized access")
