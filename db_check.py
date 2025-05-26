@@ -1,9 +1,9 @@
 import sqlite3
 
-def print_orders_db(db_path="databases/orders.db"):
+def print_orders_db(db_path="databases/users.db"):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM orders")
+    cursor.execute("SELECT * FROM users")
     rows = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
 

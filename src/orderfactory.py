@@ -32,11 +32,11 @@ class OrderFactory:
         ''')
         self.conn.commit()
 
-    def create_order(self, order_id: int, customer: Customer, products: List[Product],
+"""    def create_order(self, order_id: int, customer: Customer, products: List[Product],
                      status: OrderStatus, shipping_method: ShippingMethod) -> Order:
         order = Order(order_id, customer, products, status, shipping_method)
         self.save_order_to_db(order)
-        return order
+        return order"""
     
     def get_next_order_id(self):
         cursor = self.conn.cursor()
