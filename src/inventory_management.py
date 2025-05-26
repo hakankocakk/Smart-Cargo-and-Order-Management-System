@@ -6,7 +6,7 @@ from src.book_product import BookProduct
 
 
 #Singleton Desing Pattern
-class ProductManager:
+class ProductManagement:
     """
     Bu class, store veritabani işlemlerini yönetmek için Singleton tasarim desenini uygular.
     Bu sayede ProductManager classinin yalnizca bir örneği oluşturulabilir ve
@@ -24,7 +24,7 @@ class ProductManager:
         Classin yalnizca bir örneğinin oluşturulmasini sağlar.
         """
         if not cls._instance:
-            cls._instance = super(ProductManager, cls).__new__(cls)
+            cls._instance = super(ProductManagement, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, db_name="databases/store.db"):

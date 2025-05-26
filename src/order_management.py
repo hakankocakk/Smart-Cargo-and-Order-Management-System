@@ -1,6 +1,8 @@
 import sqlite3
+
+
 #Singleton Desing Pattern
-class OrderManager:
+class OrderManagement:
     """
     'OrderManager' sınıfı, tüm sistemde yalnızca bir örneğinin (instance) olmasını sağlayan
     bir **Singleton Tasarım Deseni** uygular. Bu sınıf, siparişleri SQLite veritabanı üzerinden
@@ -16,7 +18,7 @@ class OrderManager:
         ve onu _instance'a atar. Böylece OrderManager'ın her zaman tek bir örneği olur.
         """
         if not cls._instance:
-            cls._instance = super(OrderManager, cls).__new__(cls)
+            cls._instance = super(OrderManagement, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, db_name="databases/orders.db"):

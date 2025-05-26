@@ -6,13 +6,27 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 #from src.order import Order
 from src.customer import Customer
 from src.product import Product
-from src.orderstatus import OrderStatus
-from src.shippingMethod import ShippingMethod
+from src.order_status import OrderStatus
+from src.shipping_method import ShippingMethod
 from src.observer import Subject
-from src.notificationService import NotificationService
+from src.notification_service import NotificationService
 
 
 class Order(Subject):
+    """
+    Bu class, bir müşteri siparişini yönetir; ürünleri, durumu ve toplam maliyetini içerir.
+    Observer (Gözlemci) tasarim deseninde bir 'Subject' (Konu) olarak görev yaparak,
+    siparişin durumu değiştiğinde **kayitli gözlemcileri bilgilendirir** ve
+    ilgili `NotificationService` araciliğiyla **müşteriye bildirim gönderir**.
+
+    Attributes:
+        __id (int): Siparişin benzersiz kimliği.
+        __customer (Customer): Siparişi veren müşteri nesnesi.
+        __products (List[Product]): Siparişteki ürünlerin listesi.
+        __status (OrderStatus): Siparişin mevcut durumu (örn: Hazirlaniyor, Kargolandi, Teslim edildi).
+        __shipping_method (ShippingMethod): Sipariş için kullanilan kargo metodu.
+        __notification_service (NotificationService): Bildirim göndermek için kullanilan servis örneği.
+    """
     def __init__(self, order_id: int, customer: Customer,
                  products: List[Product],
                  status: OrderStatus,

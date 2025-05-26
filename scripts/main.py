@@ -5,19 +5,19 @@ import threading
 import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.inventorymanager import ProductManager
+from src.inventory_management import ProductManagement
 from src.product import Product
 from src.order import Order
-from src.orderstatus import OrderStatus
+from src.order_status import OrderStatus
 from src.customer import Customer
-from src.orderfactory import OrderFactory
-from src.shippingMethod import ShippingSelector
+from src.order_factory import OrderFactory
+from src.shipping_method import ShippingSelector
 from src.cart import Cart
-from src.ordermanagement import OrderManager
+from src.order_management import OrderManagement
 from src.product_factory import ProductFactory
 from src.electronics_product import ElectronicsProduct
 from src.book_product import BookProduct
-from src.notificationService import NotificationService
+from src.notification_service import NotificationService
 
 CUSTOMER_OBJECTS = {}
 current_order_statuses = {}
@@ -347,13 +347,13 @@ def main():
 
         elif choice == "2":
             user = sign_in()
-            inventory_manager = ProductManager()
+            inventory_manager = ProductManagement()
 
             if not user:
                 return
             
             if user[3] == "manager":
-                order_manager = OrderManager()
+                order_manager = OrderManagement()
                 product_factory = ProductFactory()
                 manager_menu(inventory_manager, order_manager, product_factory)
             

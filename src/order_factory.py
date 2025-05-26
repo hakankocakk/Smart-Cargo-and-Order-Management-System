@@ -6,10 +6,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.order import Order
 from src.customer import Customer
 from src.product import Product
-from src.orderstatus import OrderStatus
-from src.shippingMethod import ShippingMethod
-from src.orderDecorator import logOrderCreation
-from src.notificationService import NotificationService
+from src.order_status import OrderStatus
+from src.shipping_method import ShippingMethod
+from src.order_decorator import logOrderCreation
+from src.notification_service import NotificationService
 
 class OrderFactory:
     """
