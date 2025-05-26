@@ -45,7 +45,7 @@ class Customer(Observer):
         return self.__phone_number
     
     def get_email(self):
-                """
+        """
         Müşterinin e-posta adresini döndürür.(Attribute private olduğu için)
 
         Returns:
