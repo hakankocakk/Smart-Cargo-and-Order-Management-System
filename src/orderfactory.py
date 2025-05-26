@@ -11,7 +11,6 @@ from src.shippingMethod import ShippingMethod
 from src.orderDecorator import logOrderCreation
 from src.notificationService import NotificationService
 
-
 class OrderFactory:
     def __init__(self, db_path: str = "databases/orders.db"):
         self.conn = sqlite3.connect(db_path)
@@ -31,12 +30,6 @@ class OrderFactory:
             )
         ''')
         self.conn.commit()
-
-"""    def create_order(self, order_id: int, customer: Customer, products: List[Product],
-                     status: OrderStatus, shipping_method: ShippingMethod) -> Order:
-        order = Order(order_id, customer, products, status, shipping_method)
-        self.save_order_to_db(order)
-        return order"""
     
     def get_next_order_id(self):
         cursor = self.conn.cursor()
@@ -64,7 +57,7 @@ class OrderFactory:
         self.conn.commit() 
     @logOrderCreation
     def create_order(self, order_id: int, customer: Customer, products: List[Product],
-                     status: OrderStatus, shipping_method: ShippingMethod, notification_type: NotificationService) -> Order:
+                     status: OrderStatus, shipping_method: ShippingMethod,  notification_type: NotificationService) -> Order:
         # Stok kontrolü: stokta olmayan ürün sipariş edilemez
         for product in products:
             if product.stock <= 0:
