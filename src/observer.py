@@ -35,8 +35,22 @@ class Subject:
         self._observers.append(observer)
 
     def detach(self, observer):
+        """
+        Bir gözlemci nesnesini bu Subject'ten çıkarır.
+        Bu gözlemci artik Subject'ten bildirim almayacaktır.
+
+        Args:
+            observer (Observer): Çikarilacak gözlemci nesnesi.
+        """
         self._observers.remove(observer)
 
     def notify(self, message):
+        """
+        Tüm kayitli gözlemcilere bir bildirim mesaji gönderir.
+        Genellikle Subject'in durumunda bir değişiklik olduğunda çağrilir.
+
+        Args:
+            message (str): Gözlemcilere gönderilecek bildirim mesaji.
+        """
         for observer in self._observers:
             observer.update(message)
