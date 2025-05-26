@@ -24,6 +24,15 @@ current_order_statuses = {}
 
 
 def sign_up():
+    """
+    Kullanıcı kaydını yönetir.
+
+    Kullanıcıdan adını, soyadını, kullanıcı adını, şifresini, e-posta adresini,
+    telefon numarasını ve adresini girmesini ister. Seçilen kullanıcı adının
+    'users.db' veritabanında zaten mevcut olup olmadığını kontrol eder.
+    Kullanıcı adı benzersizse, yeni kullanıcının bilgilerini 'customer' rolüyle
+    veritabanına ekler.
+    """
     conn = sqlite3.connect("databases/users.db")
 
     while True:
@@ -56,6 +65,19 @@ def sign_up():
 
 
 def sign_in():
+    """
+    Kullanıcı girişini yönetir.
+
+    Kullanıcıdan kullanıcı adını ve şifresini girmesini ister. Sağlanan
+    kimlik bilgilerinin 'users.db' veritabanındaki mevcut bir kullanıcıyla
+    eşleşip eşleşmediğini kontrol eder. Giriş başarılı olursa, bir hoş geldiniz
+    mesajı yazdırır ve kullanıcının veritabanı kaydını döndürür. Aksi takdirde,
+    bir hata mesajı yazdırır ve None döndürür.
+
+    Returns:
+        tuple or None: Giriş başarılı olursa kullanıcının veritabanındaki
+                       verilerini içeren bir demet (tuple), aksi takdirde None.
+    """
     conn = sqlite3.connect("databases/users.db")
 
     print("=======Sign In=======")
@@ -76,6 +98,19 @@ def sign_in():
 
 
 def display_products(inventory_manager):
+    """
+    Tüm mevcut ürünlerin biçimlendirilmiş bir listesini görüntüler.
+
+    `inventory_manager`dan ürün listesini alır. Her ürün için,
+    kimliğini, adını, kategorisini, mevcut stokunu ve fiyatını görüntüler.
+    Ürün bir `ElectronicsProduct` ise garanti yılını da gösterir.
+    Bir `BookProduct` ise yazar ve yayıncıyı gösterir.
+    Ürün yoksa, ilgili bir mesaj yazdırır.
+
+    Args:
+        inventory_manager (ProductManagement): Ürün verilerini almak için kullanılan
+                                                ProductManagement sınıfının bir örneği.
+    """
     print("\n======= Available Products =======")
     products = inventory_manager.list_products() # Bu, artık doğru alt sınıf nesnelerini döndürecek
 
@@ -95,6 +130,28 @@ def display_products(inventory_manager):
 
 
 def manager_menu(inventory_manager, order_manager, product_factory):
+    """
+    Yönetici menüsünü sunar ve yöneticiye özgü eylemleri yönetir.
+
+    Yöneticilerin şunları yapmasına olanak tanır:
+    1. Tüm ürünleri listelemek.
+    2. Yeni ürünler (Elektronik, Kitap veya Standart) belirli özelliklerle eklemek.
+    3. Mevcut bir ürünün stoğunu azaltmak.
+    4. Mevcut bir ürünün stoğunu güncellemek.
+    5. Tüm müşteri siparişlerini göstermek.
+    6. Siparişleri duruma göre filtrelemek.
+    7. Belirli bir siparişin durumunu güncellemek.
+    8. Yönetici menüsünden çıkmak.
+
+    Args:
+        inventory_manager (ProductManagement): Ürünleri yönetmek için `ProductManagement`
+                                               sınıfının bir örneği.
+        order_manager (OrderManagement): Siparişleri yönetmek için `OrderManagement`
+                                         sınıfının bir örneği.
+        product_factory (ProductFactory): Ürün nesneleri oluşturmak için `ProductFactory`
+                                          sınıfının bir örneği.
+    """
+    
     
     while True:
         print("\n--- Manager Menu ---")
@@ -118,7 +175,6 @@ def manager_menu(inventory_manager, order_manager, product_factory):
             try:
                 product_id = int(input("Enter a product id: "))
                 product_name = input("Enter a product name: ")
-                #product_category = input("Enter a product category: ")
                 product_type = input("Enter product type (Electronics, Book, Standard): ").lower()
                 product_stock = int(input("Enter a product stock: "))
                 product_price = input("Enter a product price: ")
@@ -136,14 +192,13 @@ def manager_menu(inventory_manager, order_manager, product_factory):
                         product_type, id=product_id, name=product_name,
                         stock=product_stock, price=product_price, author=author, publisher=publisher
                     )
-                else: # Varsayılan veya bilinmeyen tip için
-                    product_category = input("Enter product category (e.g., General): ") # Varsayılan kategori
+                else: 
+                    product_category = input("Enter product category (e.g., General): ") 
                     product = product_factory.create_product(
                         "standard", id=product_id, name=product_name,
-                        category=product_category, stock=product_stock, price=product_price # category'yi Product'a ilet
+                        category=product_category, stock=product_stock, price=product_price 
                     )
 
-                #product = Product(id=product_id, name=product_name, category=product_category, stock=product_stock, price=product_price)
                 inventory_manager.add_product(product)
                 print("Product added successfully.")
             except Exception as e:
@@ -202,6 +257,19 @@ def manager_menu(inventory_manager, order_manager, product_factory):
 
 
 def pool_for_order_status(customer):
+    """
+    Belirli bir müşteri için sipariş durumunu sürekli olarak izler.
+
+    Bu fonksiyon ayrı bir iş parçacığında çalışır ve periyodik olarak
+    müşterinin siparişlerindeki güncellemeler için 'orders.db' veritabanını
+    kontrol eder. Bir siparişin durumu değişirse, `Order` nesnesini günceller,
+    müşteriyi bir gözlemci olarak ekler ve müşteriyi durum değişikliği hakkında
+    bilgilendirir. Durum güncellemeleri, bir bildirimden sonra `print_customer_menu()`
+    çağrılarak yansıtılır.
+
+    Args:
+        customer (Customer): Siparişleri izlenen müşteri nesnesi.
+    """
     global current_order_statuses
     while True:
         conn = sqlite3.connect("databases/orders.db")
@@ -228,6 +296,9 @@ def pool_for_order_status(customer):
 
 
 def print_customer_menu():
+    """
+    Müşteri menüsünde bulunan seçenekleri yazdırır.
+    """
     print("\n1. List the Products")
     print("2. Filter by Category")
     print("3. Create Order")
@@ -236,6 +307,27 @@ def print_customer_menu():
     print("Your choice: ")
 
 def customer_menu(inventory_manager, user):
+    """
+    Müşteri menüsünü sunar ve müşteriye özgü eylemleri yönetir.
+
+    Müşterilerin şunları yapmasına olanak tanır:
+    1. Tüm mevcut ürünleri listelemek.
+    2. Ürünleri kategoriye göre filtrelemek.
+    3. Sepete ürün ekleyerek, aciliyet, bildirim tipi ve gönderim yöntemi seçerek
+       yeni bir sipariş oluşturmak. Sipariş daha sonra veritabanına kaydedilir
+       ve ürün stoğu azaltılır.
+    4. Sipariş geçmişini görüntülemek.
+    5. Müşteri menüsünden çıkmak.
+
+    Ayrıca, mevcut müşteri için sipariş durumu değişikliklerini izlemek üzere
+    bir arka plan iş parçacığı (`pool_for_order_status`) başlatır.
+
+    Args:
+        inventory_manager (ProductManagement): Ürünleri yönetmek için `ProductManagement`
+                                               sınıfının bir örneği.
+        user (tuple): Giriş yapmış müşterinin veritabanından alınan verilerini içeren
+                      bir demet (örn: (id, kullanıcı adı, şifre, rol, ad, ...)).
+    """
     print(f"\n--- Hoşgeldiniz, {user[1]}! ---")
     if user[1] not in CUSTOMER_OBJECTS:
         CUSTOMER_OBJECTS[user[1]] = Customer(customer_id=user[0], name=user[4], surname=user[5], phone_number=user[6], email=user[7], order_history=[], address=user[8])
@@ -334,6 +426,17 @@ def customer_menu(inventory_manager, user):
              
 
 def main():
+    """
+    E-ticaret uygulamasının ana fonksiyonu.
+
+    Kullanıcıya başlangıç menüsünü sunar, şunları yapmasına olanak tanır:
+    1. Kaydol: Yeni bir kullanıcı hesabı oluşturun.
+    2. Giriş Yap: Mevcut bir hesaba giriş yapın.
+    3. Çıkış: Uygulamayı sonlandırın.
+
+    Başarılı girişin ardından, kullanıcıyı atanmış rolüne göre yönetici
+    menüsüne veya müşteri menüsüne yönlendirir.
+    """
 
     while True:
         print("\n--- Welcome to OOP Store ---")
