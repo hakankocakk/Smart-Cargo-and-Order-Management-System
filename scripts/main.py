@@ -285,11 +285,9 @@ def pool_for_order_status(customer):
                         if order.status == "Preparing":
                             order.update_status(OrderStatus.PREPARING)
                         elif order.status == "Shipped":
-                            print(order.id)
                             order_factory.create_tracking_number(order.id)
                             tracking_number = order_factory.get_tracking_number(order.id)
                             order.add_tracking_number(tracking_number)
-                            print(order.tracking_number)
                             order.update_status(OrderStatus.SHIPPED)
                         elif order.status == "Delivered":
                             order.update_status(OrderStatus.DELIVERED)

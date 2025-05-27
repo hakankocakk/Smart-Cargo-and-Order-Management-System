@@ -125,6 +125,7 @@ class OrderFactory:
             order.total
        ))
         self.conn.commit() 
+        
     @logOrderCreation
     def create_order(self, order_id: int, customer: Customer, products: List[Product],
                      status: OrderStatus, shipping_method: ShippingMethod,  notification_type: NotificationService,
