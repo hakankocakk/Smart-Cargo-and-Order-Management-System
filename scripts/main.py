@@ -351,9 +351,17 @@ def customer_menu(inventory_manager, user):
             display_products(inventory_manager)
         elif secim == "2":
             kategori = input("Category Name: ")
-            urunler = inventory_manager.filter_by_category(kategori)
-            for product in urunler:
-                print(f"ID: {product.id} | Name: {product.name} | Stock: {product.stock} | Price: ${product.price:.2f}")
+            products = inventory_manager.filter_by_category(kategori)
+            for product in products:
+                product_info = f"ID: {product.id} | Name: {product.name} | Category: {product.category} | Stock: {product.stock} | Price: ${product.price:.2f}"
+
+                if isinstance(product, ElectronicsProduct):
+                    product_info += f" | Warranty: {product.warranty_years} years"
+                elif isinstance(product, BookProduct):
+                    product_info += f" | Author: {product.author} | Publisher: {product.publisher}"
+    
+                print(product_info)
+
         elif secim == "3":
             cart = Cart()
             while True:
@@ -458,7 +466,7 @@ def main():
             inventory_manager = ProductManagement()
 
             if not user:
-                return
+                continue
             
             if user[3] == "manager":
                 order_manager = OrderManagement()
