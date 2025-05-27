@@ -35,7 +35,7 @@ Bu proje, çeşitli Nesne Yönelimli Programlama (OOP) prensiplerini ve tasarım
 
 Projeyi kurmak için aşağıdaki adımları izleyin:
 
-1.  **Depoyu klonlayın:**
+1.  **Repository'i klonlayın:**
     ```bash
     git clone https://github.com/hakankocakk/Smart-Cargo-and-Order-Management-System
     ```
