@@ -34,8 +34,9 @@ class OrderManagement:
 
     def show_orders(self):
         """
-        Veritabanındaki tüm siparişleri çeker ve konsola okunaklı bir formatta yazdırır.
-        Her siparişin ID'sini, ürünlerini, durumunu, nakliye yöntemini ve toplam maliyetini gösterir.
+        Veritabanindaki tüm siparişleri çeker ve konsola okunaklı bir formatta yazdırır.
+        Her siparişin ID'sini, ürünlerini, durumunu, sipariş notunu, nakliye yöntemini ve toplam maliyetini,
+        müşteri adini ve adresini, kargo takip numarasini gösterir.
         """
         try:
             cursor = self.conn.execute("SELECT id, customer_name, customer_address, products, note, status, shipping_method, total, tracking_number FROM orders")
@@ -56,10 +57,11 @@ class OrderManagement:
                           Bu, 'OrderStatus' Enum'undaki değerlerden biriyle eşleşmelidir.
         """
         try:
-            cursor = self.conn.execute("Select id, products, status, shipping_method, total FROM orders WHERE status = ?", (status,))
+            cursor = self.conn.execute("SELECT id, customer_name, customer_address, products, note, status, shipping_method, total, tracking_number FROM orders WHERE status = ?", (status,))
             orders = cursor.fetchall()
-            for i, (oid, products, status, shipping, total) in enumerate(orders, 1):
-                print(f"{i}. Order ID: {oid} | Products: {products} | Status: {status} | Shipping: {shipping} | Total: {total}")
+            for i, (oid, name, address, products, note, status, shipping, total, tracking_number) in enumerate(orders, 1):
+                print(f"{i}. Order ID: {oid} | Products: {products} | Status: {status} | Note: {note} | Shipping: {shipping} | Total: {total}"
+                      f"| Name: {name} | Address : {address} | Tracking Number: {tracking_number}")
         except Exception as e:
                 print(f"Error: {e}")
 
@@ -71,7 +73,6 @@ class OrderManagement:
             order_id (int): Durumu güncellenecek siparişin kimliği.
             status (str): Siparişin ayarlanacağı yeni durum (örn. "Preparing", "Shipped", "Delivered").
         """
-
         try:
             self.conn.execute("UPDATE orders SET status = ? WHERE id = ?", (status, order_id))
             self.conn.commit()
