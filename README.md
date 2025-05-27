@@ -1,8 +1,5 @@
 # Smart-Cargo-and-Order-Management-System
 
-## İçerik Tablosu
-
-
 ## Hakkında
 Bu proje, çeşitli Nesne Yönelimli Programlama (OOP) prensiplerini ve tasarım desenlerini kullanarak geliştirilmiş akıllı kargo ve sipariş yönetim sistemi uygulamasıdır. Kullanıcıların ürünlere göz atabildiği, sepete ekleyebildiği, sipariş verebildiği ve sipariş durumlarını takip edebildiği temel bir çevrimiçi mağaza simülasyonu sunar. Yöneticiler ise ürün yönetimi ve sipariş denetimi gibi ek işlevlere sahiptir. Uygulama, kullanıcı ve ürün verileri için SQLite veritabanlarıyla etkileşim kurar.
 
