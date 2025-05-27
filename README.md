@@ -1,7 +1,5 @@
 # Smart-Cargo-and-Order-Management-System
 
-# OOP Mağazası: E-ticaret Uygulaması
-
 ## İçerik Tablosu
 - [Hakkında](#hakkında)
 - [Özellikler](#özellikler)
@@ -57,7 +55,7 @@ Projeyi kurmak için aşağıdaki adımları izleyin:
     git clone <depo_url'si>
     cd OOP-Store
     ```
-    
+
 
 3.  **Bağımlılıkları yükleyin:**
     Bu proje öncelikli olarak Python'ın yerleşik modülü olan `sqlite3`'ü kullanır. Çekirdek işlevsellik için başka harici kütüphaneler zorunlu değildir.
