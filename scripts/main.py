@@ -277,14 +277,20 @@ def pool_for_order_status(customer):
         try:
             cursor.execute("SELECT * FROM orders WHERE customer_name = ?", (customer.name,))
             my_orders = cursor.fetchall()
+            order_factory = OrderFactory()
             for i in my_orders:
-                order = Order(i[0], customer, [i[3]], i[4], i[5], NotificationService("email"))
+                order = Order(i[0], customer, [i[3]], i[5], i[6], NotificationService("sms"), i[4], i[8], i[7])
                 if order.id not in current_order_statuses or current_order_statuses[order.id] != order.status:
                     if order.id in current_order_statuses:
                         order.attach(customer)
                         if order.status == "Preparing":
                             order.update_status(OrderStatus.PREPARING)
                         elif order.status == "Shipped":
+                            print(order.id)
+                            order_factory.create_tracking_number(order.id)
+                            tracking_number = order_factory.get_tracking_number(order.id)
+                            order.add_tracking_number(tracking_number)
+                            print(order.tracking_number)
                             order.update_status(OrderStatus.SHIPPED)
                         elif order.status == "Delivered":
                             order.update_status(OrderStatus.DELIVERED)
@@ -359,7 +365,7 @@ def customer_menu(inventory_manager, user):
             cart = Cart()
             while True:
                 display_products(inventory_manager)     
-                product_id = int(input("Product ID of your choice: "))     
+                product_id = int(input("Product ID of your choice: "))   
                 urunler = inventory_manager.list_products()
                 selected = [p for p in urunler if p.id == product_id]
                 if not selected:
@@ -396,6 +402,11 @@ def customer_menu(inventory_manager, user):
                 print("No products selected.")
                 continue
 
+            note = " "
+            choice = input("Do you want to add note? (y/n): ").strip().lower()
+            if choice == "y":
+                note = input("Note: ")
+
             urgency = input("Is it urgent? (high/low): ")
             notification = input("Notification service type (email/sms): ")
             total_items = sum(adet for _, adet in cart)
@@ -406,7 +417,7 @@ def customer_menu(inventory_manager, user):
                 inventory_manager.reduce_stock(product.name, adet)
 
             order_id = order_factory.get_next_order_id()
-            order = order_factory.create_order(order_id=order_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method, notification_type=NotificationService(notification))
+            order = order_factory.create_order(order_id=order_id, customer=customer, products=product_list, status=OrderStatus.PREPARING, shipping_method=shipping_method, notification_type=NotificationService(notification), note=note)
             order.attach(customer)
             order.update_status(OrderStatus.PREPARING)
             print("Order has been created and saved.")
@@ -417,8 +428,9 @@ def customer_menu(inventory_manager, user):
                 print("No order history found.")
             else:
                 print("Your Order History:")
-                for i, (oid, products, status, shipping, total) in enumerate(orders, 1):
-                    print(f"{i}. Order ID: {oid} | Products: {products} | Status: {status} | Shipping: {shipping} | Total: {total}")
+                for i, (oid, address, products, note, status, shipping, total, tracking_number) in enumerate(orders, 1):
+                    print(f"{i}. Order ID: {oid} | Products: {products} | Status: {status} | Note: {note} | Shipping: {shipping} | Total: {total}"
+                          f"| Address : {address} | Tracking Number: {tracking_number}")
         elif secim == "5":
             break
         else:
