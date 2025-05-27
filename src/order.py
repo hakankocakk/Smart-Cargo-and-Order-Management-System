@@ -31,7 +31,10 @@ class Order(Subject):
                  products: List[Product],
                  status: OrderStatus,
                  shipping_method: ShippingMethod,
-                 notification_service: NotificationService):
+                 notification_service: NotificationService,
+                 note: str,
+                 tracking_number: int,
+                 total: float = None):
         super().__init__()
         self.__id = order_id
         self.__customer = customer
@@ -39,6 +42,13 @@ class Order(Subject):
         self.__status = status
         self.__shipping_method = shipping_method
         self.__notification_service = notification_service
+        self.__note  = note
+        self.__tracking_number = tracking_number
+
+        if total is not None:
+            self.__total = total
+        else:
+            self.__total = self.calculate_total()
 
     def calculate_total(self) -> float:
         """Calculate total price of products plus shipping cost."""
@@ -57,10 +67,13 @@ class Order(Subject):
         """Update the order status."""
         """Update the order status and send a notification.""" 
         self.__status = new_status.value
+
+        message = f"Your order {self.id} status has been updated to {new_status.value}. Shipping tracking number: {self.tracking_number}"
+
         if self.__status == "Preparing":
             self.notify(f"Order {self.__id} status has been updated: {new_status.value}")
+            message = f"Your order {self.id} status has been updated to {new_status.value}."
 
-        message = f"Your order {self.id} status has been updated to {new_status.value}."
         if hasattr(self.__customer, '_Customer__email') and self.__notification_service.notification_type == "email":
             contact_info = self.__customer.get_email()
             self.__notification_service.send_notification(contact_info, message)
@@ -95,3 +108,18 @@ class Order(Subject):
     def shipping_method(self):
         """Get the shipping method."""
         return self.__shipping_method
+    
+    @property
+    def total(self):
+        return self.__total
+    
+    @property
+    def note(self):
+        return self.__note
+    
+    @property
+    def tracking_number(self):
+        return self.__tracking_number
+    
+    def add_tracking_number(self, tracking_number):
+        self.__tracking_number = tracking_number

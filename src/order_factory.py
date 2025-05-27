@@ -2,6 +2,7 @@ import sqlite3
 from typing import List
 import sys
 import os
+import random
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.order import Order
 from src.customer import Customer
@@ -40,9 +41,11 @@ class OrderFactory:
                 customer_name TEXT,
                 customer_address TEXT,
                 products TEXT,
+                note TEXT,
                 status TEXT,
                 shipping_method TEXT,
-                total REAL
+                total REAL,
+                tracking_number INT
             )
         ''')
         self.conn.commit()
@@ -59,6 +62,21 @@ class OrderFactory:
         cursor.execute('SELECT MAX(id) FROM orders')
         result = cursor.fetchone()
         return (result[0] + 1) if result[0] is not None else 1
+
+
+    def create_tracking_number(self, order_id): 
+        try:
+            tracking_number = int(str(order_id) + str(random.randint(10000, 99999)))
+            self.conn.execute("UPDATE orders SET tracking_number  = ? WHERE id = ?", (tracking_number, order_id))
+            self.conn.commit()
+        except Exception as e:
+                print(f"Error: {e}")
+
+    def get_tracking_number(self, order_id):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT tracking_number FROM orders WHERE id = ?', (order_id,))
+        return cursor.fetchone()[0]
+
     
     def save_order_to_db(self, order: Order):
         """
@@ -71,24 +89,25 @@ class OrderFactory:
         """
         cursor = self.conn.cursor()
         product_names = ', '.join([p.name for p in order._Order__products])  
-        total = order.calculate_total()
         shipping_method_name = type(order._Order__shipping_method).__name__
         cursor.execute('''
-           INSERT INTO orders (id, customer_name, customer_address, products, status, shipping_method, total)
-           VALUES (?, ?, ?, ?, ?, ?, ?)
+           INSERT INTO orders (id, customer_name, customer_address, products, note, status, shipping_method, total)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             order.id,
             order.customer.name,
             order.customer.get_address(),  
             product_names,
+            order.note,
             order.status.value,
             shipping_method_name,
-            total
+            order.total
        ))
         self.conn.commit() 
     @logOrderCreation
     def create_order(self, order_id: int, customer: Customer, products: List[Product],
-                     status: OrderStatus, shipping_method: ShippingMethod,  notification_type: NotificationService) -> Order:
+                     status: OrderStatus, shipping_method: ShippingMethod,  notification_type: NotificationService,
+                     note: str) -> Order:
         """
         Yeni bir sipariş nesnesi oluşturur, veritabanına kaydeder, müşteri sipariş geçmişine ekler
         ve sipariş edilen ürünlerin stoğunu günceller.
@@ -113,7 +132,7 @@ class OrderFactory:
             if product.stock <= 0:
                 raise Exception(f"{product.name} is out of stock.")
             
-        order = Order(order_id, customer, products, status, shipping_method, notification_type)
+        order = Order(order_id, customer, products, status, shipping_method, notification_type, note, "")
         self.save_order_to_db(order)
         customer.add_order(order)
         for product in products:
@@ -132,5 +151,5 @@ class OrderFactory:
                           (id, products, status, shipping_method, total) bilgilerini içeren bir tuple olarak döndürülür.
         """
         cursor = self.conn.cursor()
-        cursor.execute('SELECT id, products, status, shipping_method, total FROM orders WHERE customer_name = ?', (customer_name,))
+        cursor.execute('SELECT id, customer_address, products, note, status, shipping_method, total, tracking_number FROM orders WHERE customer_name = ?', (customer_name,))
         return cursor.fetchall()
