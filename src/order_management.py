@@ -38,10 +38,11 @@ class OrderManagement:
         Her siparişin ID'sini, ürünlerini, durumunu, nakliye yöntemini ve toplam maliyetini gösterir.
         """
         try:
-            cursor = self.conn.execute("SELECT id, products, status, shipping_method, total FROM orders")
+            cursor = self.conn.execute("SELECT id, customer_name, customer_address, products, note, status, shipping_method, total, tracking_number FROM orders")
             orders = cursor.fetchall()
-            for i, (oid, products, status, shipping, total) in enumerate(orders, 1):
-                print(f"{i}. Order ID: {oid} | Products: {products} | Status: {status} | Shipping: {shipping} | Total: {total}")
+            for i, (oid, name, address, products, note, status, shipping, total, tracking_number) in enumerate(orders, 1):
+                print(f"{i}. Order ID: {oid} | Products: {products} | Status: {status} | Note: {note} | Shipping: {shipping} | Total: {total}"
+                      f"| Name: {name} | Address : {address} | Tracking Number: {tracking_number}")
         except Exception as e:
                 print(f"Error: {e}")
 
