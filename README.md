@@ -1,20 +1,10 @@
 # Smart-Cargo-and-Order-Management-System
 
 ## İçerik Tablosu
-- [Hakkında](#hakkında)
-- [Özellikler](#özellikler)
-- [Kurulum](#kurulum)
-- [Kullanım](#kullanım)
-  - [Kaydol / Giriş Yap](#kaydol--giriş-yap)
-  - [Müşteri Menüsü](#müşteri-menüsü)
-  - [Yönetici Menüsü](#yönetici-menüsü)
-- [Kullanılan Tasarım Desenleri](#kullanılan-tasarım-desenleri)
-- [Dosya Yapısı](#dosya-yapısı)
-- [Katkıda Bulunma](#katkıda-bulunma)
-- [Lisans](#lisans)
+
 
 ## Hakkında
-Bu proje, çeşitli Nesne Yönelimli Programlama (OOP) prensiplerini ve tasarım desenlerini kullanarak geliştirilmiş bir e-ticaret uygulamasıdır. Kullanıcıların ürünlere göz atabildiği, sepete ekleyebildiği, sipariş verebildiği ve sipariş durumlarını takip edebildiği temel bir çevrimiçi mağaza simülasyonu sunar. Yöneticiler ise ürün yönetimi ve sipariş denetimi gibi ek işlevlere sahiptir. Uygulama, kullanıcı ve ürün verileri için SQLite veritabanlarıyla etkileşim kurar.
+Bu proje, çeşitli Nesne Yönelimli Programlama (OOP) prensiplerini ve tasarım desenlerini kullanarak geliştirilmiş akıllı kargo ve sipariş yönetim sistemi uygulamasıdır. Kullanıcıların ürünlere göz atabildiği, sepete ekleyebildiği, sipariş verebildiği ve sipariş durumlarını takip edebildiği temel bir çevrimiçi mağaza simülasyonu sunar. Yöneticiler ise ürün yönetimi ve sipariş denetimi gibi ek işlevlere sahiptir. Uygulama, kullanıcı ve ürün verileri için SQLite veritabanlarıyla etkileşim kurar.
 
 ## Özellikler
 -   **Kullanıcı Kimlik Doğrulama:**
@@ -27,14 +17,12 @@ Bu proje, çeşitli Nesne Yönelimli Programlama (OOP) prensiplerini ve tasarım
     -   Kategoriye göre ürünleri listeleme
     -   Ürün stoğunu güncelleme
     -   Ürün stok bilgisini alma
--   **Alışveriş Sepeti (Müşteri Rolü):**
-    -   Ürünleri sepete ekleme
-    -   Sepet içeriğini görüntüleme
-    -   Sepetin boş olup olmadığını kontrol etme
-    -   Sepeti temizleme
-    -   Sepetteki toplam ürün sayısını alma
+-   **Alışveriş (Müşteri Rolü):**
+    -   Ürünleri görüntüleme
+    -   Kategorilere göre ürünleri görüntüleme
+    -   Sipariş oluşturma
+    -   Sipariş durumunu görüntüleme
 -   **Sipariş Yönetimi:**
-    -   Sepetten yeni sipariş oluşturma
     -   Sipariş geçmişini görüntüleme
     -   Sipariş durumunu güncelleme (Yönetici)
     -   Otomatik bildirim için Observer deseni kullanılarak sipariş durumu değişiklikleri için bildirimler
@@ -42,7 +30,7 @@ Bu proje, çeşitli Nesne Yönelimli Programlama (OOP) prensiplerini ve tasarım
     -   E-posta ve SMS bildirim simülasyonu
     -   Sipariş durumu bildirimleri için Observer deseni
 -   **Veritabanı Entegrasyonu:**
-    -   Kullanıcı ve ürün verilerini depolamak için SQLite kullanır.
+    -   Kullanıcı, ürün ve sipariş verilerini depolamak için SQLite kullanır.
 -   **Hata Yönetimi:**
     -   Veritabanı işlemleri ve kullanıcı girişleri için temel hata yönetimi.
 
@@ -52,8 +40,7 @@ Projeyi kurmak için aşağıdaki adımları izleyin:
 
 1.  **Depoyu klonlayın:**
     ```bash
-    git clone <depo_url'si>
-    cd OOP-Store
+    git clone https://github.com/hakankocakk/Smart-Cargo-and-Order-Management-System
     ```
 
 
@@ -61,9 +48,10 @@ Projeyi kurmak için aşağıdaki adımları izleyin:
     Bu proje öncelikli olarak Python'ın yerleşik modülü olan `sqlite3`'ü kullanır. Çekirdek işlevsellik için başka harici kütüphaneler zorunlu değildir.
 
 4.  **Veritabanlarını başlatın:**
-    Uygulama, ilk çalıştırmada `users.db` ve `store.db` dosyalarını otomatik olarak oluşturacaktır.
-    -   `users.db`: Kullanıcı kimlik doğrulama bilgilerini (kullanıcı adı, parola, rol) depolar.
-    -   `store.db`: Ürün bilgilerini (ID, ad, kategori, stok, fiyat, yazar, yayınevi, garanti) depolar.
+    Uygulama, ilk çalıştırmada `orders.db` ve `store.db` dosyalarını otomatik olarak oluşturacaktır.
+    -   `users.db`: Kullanıcı kimlik doğrulama bilgilerini depolar.
+    -   `orders.db`: Sipariş bilgilerini depolar.
+    -   `store.db`: Ürün bilgilerini depolar.
 
 ## Kullanım
 
@@ -71,3 +59,4 @@ Uygulamayı çalıştırmak için `main.py` dosyasını çalıştırın:
 
 ```bash
 python main.py
+```
