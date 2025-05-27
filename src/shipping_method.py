@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 class ShippingMethod(ABC):
     """
-    Nakliye yöntemleri için soyut temel sınıf.
+    Nakliye yöntemleri için soyut temel class.
     Tüm somut nakliye yöntemlerinin uygulaması gereken 'calculateCost' metodunu tanımlar.
-    Bu, farklı nakliye seçenekleri arasında tutarlı bir arayüz sağlar.
+    Bu, farklı nakliye seçenekleri arasında tutarlı bir arayüz sağlar ve **Strateji Deseni**'nin
+    arayüzünü (Strategy Interface) temsil eder.
     """
     @abstractmethod
     def calculateCost(self):
@@ -18,21 +19,23 @@ class ShippingMethod(ABC):
 
 class FastShipping(ShippingMethod):
     """
-    Hızlı nakliye yöntemini temsil eder.
-    Bu yöntem, daha yüksek bir maliyetle hızlı teslimat sağlar.
+    Hizli nakliye yöntemini temsil eder.
+    Bu yöntem, daha yüksek bir maliyetle hizli teslimat sağlar ve **Strateji Deseni**'nin
+    somut bir stratejisini (Concrete Strategy) oluşturur.
     """
     def calculateCost(self):
         """
         Hızlı nakliye maliyetini hesaplar.
 
         Returns:
-            float: Sabit hızlı nakliye maliyeti (20.0).
+            float: Sabit hizli nakliye maliyeti (20.0).
         """
         return 20.0
 class CheapShipping(ShippingMethod):
     """
     Ucuz nakliye yöntemini temsil eder.
-    Bu yöntem, düşük bir maliyetle standart teslimat sağlar.
+    Bu yöntem, düşük bir maliyetle standart teslimat sağlar ve **Strateji Deseni**'nin
+    somut bir stratejisini (Concrete Strategy) oluşturur.
     """
     def calculateCost(self):
         """
@@ -45,7 +48,8 @@ class CheapShipping(ShippingMethod):
 class DroneShipping(ShippingMethod):
     """
     Drone ile nakliye yöntemini temsil eder.
-    Bu yöntem, belirli durumlar için yüksek maliyetli ancak hızlı bir teslimat sağlar.
+    Bu yöntem, belirli durumlar için yüksek maliyetli ancak hizli bir teslimat sağlar ve
+    **Strateji Deseni**'nin somut bir stratejisini (Concrete Strategy) oluşturur.
     """
     def calculateCost(self):
         """
@@ -58,24 +62,27 @@ class DroneShipping(ShippingMethod):
 
 class ShippingSelector:
     """
-    Uygun nakliye yöntemini seçmek için kullanılan yardımcı sınıf.
-    Bu sınıf, verilen siparişin ağırlığı ve aciliyetine göre en iyi nakliye yöntemini belirler.
+    Uygun nakliye yöntemini seçmek için kullanilan yardimci class.
+    Bu class, verilen siparişin ağirliği ve aciliyetine göre en iyi nakliye yöntemini belirler.
+    
+    Bu class'in `select_best_method` statik metodu, koşullara göre farkli 'ShippingMethod'
+    nesneleri oluşturarak **Basit Fabrika (Simple Factory) deseni**ni uygular.
+    Bu sayede, istemci kodunun hangi somut nakliye classinin kullanacağini bilmesine gerek kalmaz.
     """
     @staticmethod
     def select_best_method(order_weight, urgency):
         """
-        Verilen sipariş ağırlığı ve aciliyetine göre en uygun nakliye yöntemini seçer.
+        Verilen sipariş ağirliği ve aciliyetine göre en uygun nakliye yöntemini seçer.
         Bu, bir fabrika (factory) desenine benzer şekilde, belirli koşullara göre farklı
         nakliye stratejilerini döndürür.
 
         Args:
-            order_weight (float): Siparişin ağırlığı.
+            order_weight (float): Siparişin ağirliği.
             urgency (str): Siparişin aciliyet seviyesi ('high' veya diğer).
 
         Returns:
             ShippingMethod: Seçilen nakliye yöntemini temsil eden bir ShippingMethod nesnesi.
         """
-        # Basit örnek: ağırlık ve aciliyet ile seçim
         if urgency == 'high':
             return FastShipping()
         elif order_weight < 2:
