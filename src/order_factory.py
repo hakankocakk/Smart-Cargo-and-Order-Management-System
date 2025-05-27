@@ -16,7 +16,8 @@ class OrderFactory:
     """
     'OrderFactory' sınıfı, sipariş nesneleri oluşturmaktan ve bu siparişleri bir veritabanında yönetmekten sorumludur.
     Bu sınıf, bir fabrika deseni (Factory Pattern) uygulayarak sipariş oluşturma sürecini soyutlar ve
-    veritabanı etkileşimlerini kapsüller.
+    veritabanı etkileşimlerini kapsüller. Siparişlerin oluşturulması, kaydedilmesi, takip numarası atanması
+    ve müşteri sipariş geçmişi ile ürün stok güncellemeleri gibi işlemleri yönetir.
     """
     def __init__(self, db_path: str = "databases/orders.db"):
         """
@@ -33,6 +34,8 @@ class OrderFactory:
         """
         Veritabanında 'orders' tablosunu oluşturur eğer zaten yoksa.
         Bu tablo, siparişlerin temel bilgilerini depolamak için kullanılır.
+        Sipariş ID'si, müşteri adı ve adresi, ürünler (metin olarak), not,
+        durum, kargo metodu, toplam tutar ve takip numarası gibi alanları içerir.
         """
         cursor = self.conn.cursor()
         cursor.execute('''
@@ -64,8 +67,17 @@ class OrderFactory:
         return (result[0] + 1) if result[0] is not None else 1
 
 
-    def create_tracking_number(self, order_id): 
+    def create_tracking_number(self, order_id):
+        """
+        Belirtilen sipariş ID'si için benzersiz bir kargo takip numarası oluşturur
+        ve bu numarayi veritabanindaki ilgili sipariş kaydina günceller.
+        Takip numarasi, sipariş ID'si ve rastgele bir sayi kombinasyonundan oluşur.
+
+        Args:
+            order_id (int): Takip numarasi oluşturulacak siparişin kimliği.
+        """
         try:
+            # Sipariş ID'si ve 5 haneli rastgele bir sayıyı birleştirerek takip numarası oluştur
             tracking_number = int(str(order_id) + str(random.randint(10000, 99999)))
             self.conn.execute("UPDATE orders SET tracking_number  = ? WHERE id = ?", (tracking_number, order_id))
             self.conn.commit()
@@ -73,6 +85,15 @@ class OrderFactory:
                 print(f"Error: {e}")
 
     def get_tracking_number(self, order_id):
+        """
+        Belirtilen sipariş ID'sine ait kargo takip numarasını veritabanından getirir.
+
+        Args:
+            order_id (int): Takip numarasi sorgulanacak siparişin kimliği.
+
+        Returns:
+            int | None: Siparişin takip numarasi (int) veya bulunamazsa None.
+        """
         cursor = self.conn.cursor()
         cursor.execute('SELECT tracking_number FROM orders WHERE id = ?', (order_id,))
         return cursor.fetchone()[0]
@@ -81,7 +102,7 @@ class OrderFactory:
     def save_order_to_db(self, order: Order):
         """
         Verilen Order nesnesini veritabanına kaydeder.
-        Siparişin ID'si, müşteri bilgileri, ürünleri, durumu, nakliye yöntemi ve toplam maliyeti gibi
+        Siparişin ID'si, müşteri bilgileri, ürünleri, notu, durumu, nakliye yöntemi ve toplam maliyeti gibi
         detayları 'orders' tablosuna ekler.
 
         Args:
@@ -120,7 +141,8 @@ class OrderFactory:
             products (List[Product]): Siparişteki Product nesnelerinin listesi.
             status (OrderStatus): Siparişin başlangıç durumu (örn. PENDING).
             shipping_method (ShippingMethod): Sipariş için seçilen nakliye yöntemi.
-            notification_type (NotificationService): Sipariş bildirimleri için kullanılacak servis tipi.
+            notification_service (NotificationService): Sipariş bildirimleri için kullanılacak servis.
+            note (str): Siparişle ilgili ek notlar.
 
         Returns:
             Order: Başarılı bir şekilde oluşturulan Order nesnesi.
@@ -148,7 +170,7 @@ class OrderFactory:
 
         Returns:
             List[tuple]: Müşteriye ait siparişlerin listesi. Her bir sipariş,
-                          (id, products, status, shipping_method, total) bilgilerini içeren bir tuple olarak döndürülür.
+                          (id, customer_address, products, note, status, shipping_method, total, tracking_number) bilgilerini içeren bir tuple olarak döndürülür.
         """
         cursor = self.conn.cursor()
         cursor.execute('SELECT id, customer_address, products, note, status, shipping_method, total, tracking_number FROM orders WHERE customer_name = ?', (customer_name,))
